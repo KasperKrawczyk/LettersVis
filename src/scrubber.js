@@ -1,6 +1,6 @@
 import * as d3js from 'https://d3js.org/d3.v7.min.js';
 
-export default function Scrubber(values, form, {
+export default function Scrubber(values, form, dataAt, chartObject, {
     format = value => value,
     initial = 0,
     delay = null,
@@ -10,6 +10,7 @@ export default function Scrubber(values, form, {
     alternate = false
 } = {}) {
     values = Array.from(values);
+    form.i.max = values.length;
     let frame = null;
     let timer = null;
     let interval = null;
@@ -26,6 +27,7 @@ export default function Scrubber(values, form, {
         if (frame !== null) cancelAnimationFrame(frame), frame = null;
         if (timer !== null) clearTimeout(timer), timer = null;
         if (interval !== null) clearInterval(interval), interval = null;
+        console.log("WHY?!")
     }
 
     function running() {
@@ -55,7 +57,9 @@ export default function Scrubber(values, form, {
     form.i.oninput = event => {
         if (event && event.isTrusted && running()) stop();
         form.value = values[form.i.valueAsNumber];
-        form.o.value = format(form.value, form.i.valueAsNumber, values);
+        form.o.value = format(form.value);
+        const curData = dataAt(form.value);
+        chartObject.update(curData);
     };
     form.b.onclick = () => {
         if (running()) return stop();
@@ -67,6 +71,6 @@ export default function Scrubber(values, form, {
     form.i.oninput();
     if (autoplay) start();
     else stop();
-    Inputs.disposal(form).then(stop);
+    // Inputs.disposal(form).then(stop);
     return form;
 }
