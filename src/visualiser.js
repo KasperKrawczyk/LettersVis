@@ -1,28 +1,32 @@
 import * as d3js from "https://cdn.skypack.dev/d3@7";
-import Scrubber from "./scrubber.js"
+import ScrubberSetup, {updateScrubber} from "./scrubber.js"
 
 
-const margin = {top: 20, right: 20, bottom: 35, left: 40};
-const height = 560;
-const width = height * 2;
+const margin = {top: 50, right: 150, bottom: 350, left: 100};
+const height = 800;
+const width = 800;
 const scaleY = scaleLinearY();
 const scaleX = scaleLinearX();
 
 
 function chart(bodySelection) {
     const svg = bodySelection
+        // .classed("svg-container", true)
         .append("svg")
-        .attr("viewBox", [0, 0, width, height]);
+        .attr("viewBox", [0, 0, width, height])
+        // .classed("svg-content-responsive", true);
+
 
     // controls zooming behaviour
-    svg.call(d3js.zoom()
-        .extent([[0, 0], [width, height]])
-        .scaleExtent([1, 8])
-        .on("zoom", zoomed));
+    // svg.call(d3js.zoom()
+    //     .extent([[0, 0], [width, height]])
+    //     .scaleExtent([1, 3])
+    //     .on("zoom", zoomed));
+    //
+    // function zoomed({transform}) {
+    //     svg.attr("transform", transform);
+    // }
 
-    function zoomed({transform}) {
-        svg.attr("transform", transform);
-    }
     // end of zooming behaviour control
 
 
@@ -64,7 +68,7 @@ function chart(bodySelection) {
                 .join(enter => enter.append("circle")
                     .attr("r", d => radius(d.label))
                     .attr("fill", d => color(d.label))
-                    .call(node => node.append("title")
+                    .call(node => (node.append("title"))
                         .text(d => d.label)));
 
             text = text.data(data.curNodes.filter(d => !(hasNumber(d.label)), d => d.label))
@@ -107,18 +111,18 @@ function edgeWidth(targetLabel, authorLabel) {
 
 function scaleLinearY() {
     return (
-        d3js.scaleLinear([0, 200], [height - margin.bottom, margin.top])
+        d3js.scaleLinear([0, 200], [margin.top, height - margin.bottom])
     )
 }
 
 function scaleLinearX() {
     return (
-        d3js.scaleLinear([0, 400], [margin.left, width - margin.right])
+        d3js.scaleLinear([0, 200], [margin.left, width - margin.right])
     )
 }
 
 function radius(label) {
-    if (label === "Isabelle de Charrière") {
+    if (label === "Isabelle de Charrière" || label === "Elizabeth Robinson Montagu") {
         return 8
     } else if (!hasNumber(label)) {
         return 5
@@ -129,18 +133,18 @@ function radius(label) {
 }
 
 function color(label) {
-    if (label === "Isabelle de Charrière") {
-        return "red"
+    if (label === "Isabelle de Charrière" || label === "Elizabeth Robinson Montagu") {
+        return "#f03b20b5"
     } else if (!hasNumber(label)) {
-        return "blue"
+        return "#a6cee3"
     } else {
-        return "green"
+        return "#5ecc3a"
     }
 }
 
 
 export function hasNumber(string) {
-    return /\d/.test(string);
+    return /-[0-9]{2}|-[0-9]{1}/.test(string);
 }
 
 /*
@@ -151,7 +155,7 @@ function dataAtFactory(data) {
     const edges = data.edges;
 
     return function dataAt(date) {
-        const curNodes = nodes
+        let curNodes = nodes
             .filter(n => contains(n.start, n.end, date))
             .map(d => ({
                 start: d.start,
@@ -160,7 +164,7 @@ function dataAtFactory(data) {
                 x: valueAt(d.coordinates, "x", date),
                 y: valueAt(d.coordinates, "y", date),
             }));
-        const curEdges = edges
+        let curEdges = edges
             .filter(e => contains(e.start, e.end, date))
             .map(edge => ({
                 start: edge.start,
@@ -176,7 +180,6 @@ function dataAtFactory(data) {
         }
     }
 }
-
 
 
 function contains(start, end, date) {
@@ -261,15 +264,30 @@ function dates(data) {
     )
 }
 
+function datesConstrained(data, minYear, maxYear) {
+    const sortedNodes = data.nodes
+        .sort((a, b) => d3js.ascending(a.start, b.start));
+    const firstYear = Math.max(Math.floor(sortedNodes[0].start), minYear);
+    const lastYear = Math.min(Math.ceil(sortedNodes[sortedNodes.length - 1].end) - 1, maxYear);
+    console.log(firstYear)
+    console.log(lastYear)
+
+    return (
+        interval().range(
+            new Date(Date.UTC(firstYear, 0, 1)),
+            new Date(Date.UTC(lastYear, 0, 1))
+        )
+    )
+}
+
 
 export function def(bodySelection, data, scrubberForm) {
-    const dateRange = dates(data);
-    const dataAt = dataAtFactory(data);
-    const chartObject = chart(bodySelection);
-
-    // const updateTicker = updateTickerFactory(chartObject, dataAtContext);
-    console.log(Array.from(dateRange))
-    Scrubber(
+    let dateRange = dates(data);
+    let dataAt = dataAtFactory(data);
+    let chartObject = chart(bodySelection);
+    if (document.getElementById("networkChart") != null) document.getElementById("networkChart").remove();
+    chartObject.setAttribute('id', 'networkChart')
+    ScrubberSetup(
         dateRange,
         scrubberForm,
         dataAt,
@@ -277,10 +295,64 @@ export function def(bodySelection, data, scrubberForm) {
         {
             format: value => ("date = " + value.toLocaleDateString()),
             loop: true,
+            alternate: false,
             delay: 30
         })
+}
 
 
+
+export function defDatesConstrained(bodySelection, data, scrubberForm, minYear, maxYear) {
+    let dateRange = datesConstrained(data, minYear, maxYear);
+    let dataAt = dataAtFactory(data);
+    let chartObject = chart(bodySelection);
+    if (document.getElementById("networkChart") != null) document.getElementById("networkChart").remove();
+    ScrubberSetup(
+        dateRange,
+        scrubberForm,
+        dataAt,
+        chartObject,
+        {
+            format: value => ("date = " + value.toLocaleDateString()),
+            loop: true,
+            alternate: true,
+            delay: 30
+        })
+    chartObject.setAttribute('id', 'networkChart')
 
 }
 
+// export function update(bodySelection, data, scrubberForm) {
+//     let dateRange = dates(data);
+//     let dataAt = dataAtFactory(data);
+//     let chartObject = chart(bodySelection);
+//     if (document.getElementById("networkChart") != null) document.getElementById("networkChart").remove();
+//     chartObject.setAttribute('id', 'networkChart')
+//
+//     updateScrubber(dateRange,
+//         scrubberForm,
+//         dataAt,
+//         chartObject,{
+//             format: value => ("date = " + value.toLocaleDateString()),
+//             autoplay: true,
+//             loop: true
+//         })
+// }
+
+export function forceRedraw(element) {
+
+    if (!element) {
+        return;
+    }
+
+    var n = document.createTextNode(' ');
+    var disp = element.style.display;  // don't worry about previous display style
+
+    element.appendChild(n);
+    element.style.display = 'none';
+
+    setTimeout(function () {
+        element.style.display = disp;
+        n.parentNode.removeChild(n);
+    }, 20); // you can play with this timeout to make it as short as possible
+}

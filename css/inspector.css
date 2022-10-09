@@ -1,0 +1,50 @@
+.layout {
+    width: 1366px;
+    height: 768px;
+    display: grid;
+    grid:
+    "headerLeft header headerRight" auto
+    "leftSide body rightSide" 1fr
+    "footer footer footer" auto
+    / auto 1fr auto;
+    gap: 8px;
+}
+
+.headerRight {
+    width: 400px;
+}
+
+.header { grid-area: header; }
+.leftSide {
+    grid-area: leftSide;
+    height: 560px;
+    width: 400px;
+}
+.body {
+    grid-area: body;
+    height: 560px}
+.rightSide { grid-area: rightSide; }
+.footer { grid-area: footer; }
+
+#namesListBox {
+    width: 400px;
+}
+
+#legend {
+    height: 100px;
+    width: 400px;
+}
+/*.svg-container {*/
+/*    display: inline-block;*/
+/*    position: relative;*/
+/*    width: 100%;*/
+/*    padding-bottom: 100%; !* aspect ratio *!*/
+/*    vertical-align: top;*/
+/*    overflow: hidden;*/
+/*}*/
+/*.svg-content-responsive {*/
+/*    display: inline-block;*/
+/*    position: absolute;*/
+/*    top: 10px;*/
+/*    left: 0;*/
+/*}*/

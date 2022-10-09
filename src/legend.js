@@ -1,0 +1,26 @@
+import * as d3js from "https://cdn.skypack.dev/d3@7";
+
+const svg = d3js.select(document.getElementById("legend"));
+
+svg.append("circle").attr("stroke", "black").attr("cx", 10).attr("cy", 10).attr("r", 8).style("fill", "#f03b20b5")
+svg.append("circle").attr("stroke", "black").attr("cx", 10).attr("cy", 30).attr("r", 5).style("fill", "#a6cee3")
+svg.append("circle").attr("stroke", "black").attr("cx", 10).attr("cy", 50).attr("r", 3).style("fill", "#5ecc3a")
+svg.append("line")
+    .attr("stroke", "#999")
+    .attr("stroke-opacity", 1)
+    .attr("x1", 2)
+    .attr("y1", 65)
+    .attr("x2", 20)
+    .attr("y2", 75)
+svg.append("line")
+    .attr("stroke", "#1895e2")
+    .attr("stroke-opacity", 2)
+    .attr("x1", 2)
+    .attr("y1", 85)
+    .attr("x2", 20)
+    .attr("y2", 95)
+svg.append("text").attr('font-family', '"Open Sans", sans-serif').attr("x", 30).attr("y", 10).text("Isabelle de Charrière or Elizabeth Robinson Montagu").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr('font-family', '"Open Sans", sans-serif').attr("x", 30).attr("y", 30).text("Other people").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr('font-family', '"Open Sans", sans-serif').attr("x", 30).attr("y", 50).text("Letters").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr('font-family', '"Open Sans", sans-serif').attr("x", 30).attr("y", 70).text("Link between a letter and a person mentioned").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr('font-family', '"Open Sans", sans-serif').attr("x", 30).attr("y", 90).text("Link between a letter and its recipient").style("font-size", "15px").attr("alignment-baseline","middle")
