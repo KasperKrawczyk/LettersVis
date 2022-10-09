@@ -1,9 +1,8 @@
 // https://observablehq.com/@mbostock/the-wealth-health-of-nations@202
-import define1 from "./scrubber.js";
+import define1 from "./scrubberObservable.js";
 // import * as d3js from 'https://d3js.org/d3.v7.min.js';
 import * as d3js from "https://cdn.skypack.dev/d3@7";
 
-// import * as d3 from 'https://unpkg.com/d3?module'
 
 const margin = {top: 20, right: 20, bottom: 35, left: 40};
 const height = 560;
@@ -19,6 +18,12 @@ function _1(md) {
 }
 
 function _date(Scrubber, dates) {
+    return (
+        Scrubber(dates, {format: d => d.getUTCFullYear(), loop: false})
+    )
+}
+
+function datte(Scrubber, dates) {
     return (
         Scrubber(dates, {format: d => d.getUTCFullYear(), loop: false})
     )
@@ -49,7 +54,57 @@ function _legend(DOM, html, margin, color) {
                                                            style="--color: ${color(region)}">${document.createTextNode(region)}</span>`)}`;
 }
 
+function charrt(body) {
+    const svg = d3js
+        .select(body)
+        .create("svg")
+        .attr("viewBox", [0, 0, width, height]);
 
+    let node = svg.append("g")
+        .attr("stroke", "black")
+        .selectAll("circle")
+    // .data(dataAt(1753), d => d.label)
+    // .join("circle")
+    // .sort((a, b) => d3.descending(a.label, b.label))
+
+    // .attr("r", d => radius(d.label))
+    // .attr("fill", d => color(d.label))
+    // .call(circle => circle.append("title")
+    //     .text(d => d.label));
+
+    let edge = svg.append("g")
+        .attr("stroke", "#999")
+        .attr("stroke-opacity", 0.6)
+        .selectAll("line");
+
+    function tickCurData() {
+        node.attr("cx", d => scaleX(d.x))
+            .attr("cy", d => scaleY(d.y));
+
+        edge.attr("x1", d => scaleX(d.source.x))
+            .attr("y1", d => scaleY(d.source.y))
+            .attr("x2", d => scaleX(d.target.x))
+            .attr("y2", d => scaleY(d.target.y));
+    }
+
+    return Object.assign(svg.node(), {
+        update(data) {
+
+            node = node.data(data.curNodes, d => d.label)
+                .join(enter => enter.append("circle")
+                    .attr("r", d => radius(d.label))
+                    .attr("fill", d => color(d.label))
+                    .call(node => node.append("title")
+                        .text(d => d.label)));
+
+            edge = edge.data(data.curEdges, d => [d.source, d.target])
+                .join("line");
+
+            tickCurData();
+        }
+
+    });
+}
 function _chart() {
     const svg = d3js.create("svg")
         .attr("viewBox", [0, 0, width, height]);
@@ -206,6 +261,18 @@ function _valueAt() {
     )
 }
 
+function vallueAt(coordinateArray, coordString, date) {
+    const dateUTC = new Date(date);
+    let curYear = dateUTC.getUTCFullYear() + ((dateUTC.getUTCMonth()) / 11);
+    // curYear = curYear === 1970 ? 1753 : curYear;
+    // const leftIndex = coordinateArray.findIndex(coordinate => coordinate.time <= curYear);
+    // console.log(coordinateArray)
+    // for (let el in coordinateArray) {
+    //     console.log(coordinateArray[el])
+    // }
+    const rightIndex = coordinateArray.findIndex(coordinate => coordinate.time > curYear);
+    return interpolateCoordinates(coordinateArray, coordString, rightIndex, curYear)
+}
 
 function interpolateCoordinates(coordinateArray, coordString, rightIndex, curYear) {
     // console.log("COORDINATE ARRAY " + coordinateArray)
@@ -306,10 +373,35 @@ function _dates(data) {
     )
 }
 
+function dattes(data) {
+    const sortedNodes = data.nodes
+        .sort((a, b) => d3js.ascending(a.start, b.start));
+    const firstYear = Math.floor(sortedNodes[0].start);
+    const lastYear = Math.ceil(sortedNodes[sortedNodes.length - 1].end) - 1;
+
+    return (
+        interval().range(
+            new Date(Date.UTC(firstYear, 0, 1)),
+            new Date(Date.UTC(lastYear, 0, 1))
+        )
+    )
+}
+
 function _d3(require) {
     return (
         require("d3@6.7.0/dist/d3.min.js")
     )
+}
+
+function def(body, data, Scrubber) {
+    const nodes = data.nodes;
+    const edges = data.edges;
+    const dates = dattes(data);
+    let date = datte(Scrubber, dates)
+    charrt(body)
+
+
+
 }
 
 export default function define(runtime, observer) {
