@@ -4,7 +4,7 @@ import {def, defDatesConstrained} from "./visualiser.js"
 import {fetchData, filterData, populateListboxWithNodes, setOnChangeGetAllOptions} from "./dataManagement.js";
 import {defDateSpanSlider} from "./dateSpan.js";
 
-const data = await fetchData("./files/bipartite_merged_all.json")
+const data = await fetchData("./files/bipartite_merged_names_update.json")
 defDateSpanSlider($("#slider-range"), data)
 
 populateListboxWithNodes(data.nodes, document.getElementById("namesListBox"));
@@ -12,7 +12,7 @@ const peopleSelector = setOnChangeGetAllOptions(document.getElementById("namesLi
 const list = document.getElementById("namesListBox");
 def(d3js.select(".body"), data, document.getElementById("scrubberForm"))
 
-console.log("slider-range" + document.getElementById("slider-range"))
+// console.log("slider-range" + document.getElementById("slider-range"))
 document.getElementById("slider-range").addEventListener("newdatespan", e => {
     let namesSet = peopleSelector();
     let curData = data;

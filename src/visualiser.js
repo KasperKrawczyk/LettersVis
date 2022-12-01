@@ -2,7 +2,7 @@ import * as d3js from "https://cdn.skypack.dev/d3@7";
 import ScrubberSetup, {updateScrubber} from "./scrubber.js"
 
 
-const margin = {top: 50, right: 150, bottom: 350, left: 100};
+const margin = {top: 0, right: 150, bottom: 150, left: 100};
 const height = 800;
 const width = 800;
 const scaleY = scaleLinearY();
@@ -11,21 +11,21 @@ const scaleX = scaleLinearX();
 
 function chart(bodySelection) {
     const svg = bodySelection
-        // .classed("svg-container", true)
+        .classed("svg-container", true)
         .append("svg")
         .attr("viewBox", [0, 0, width, height])
-        // .classed("svg-content-responsive", true);
+        .classed("svg-content-responsive", true);
 
 
     // controls zooming behaviour
-    // svg.call(d3js.zoom()
-    //     .extent([[0, 0], [width, height]])
-    //     .scaleExtent([1, 3])
-    //     .on("zoom", zoomed));
-    //
-    // function zoomed({transform}) {
-    //     svg.attr("transform", transform);
-    // }
+    svg.call(d3js.zoom()
+        .extent([[0, 0], [width, height]])
+        .scaleExtent([1, 3])
+        .on("zoom", zoomed));
+
+    function zoomed({transform}) {
+        svg.attr("transform", transform);
+    }
 
     // end of zooming behaviour control
 
@@ -111,13 +111,13 @@ function edgeWidth(targetLabel, authorLabel) {
 
 function scaleLinearY() {
     return (
-        d3js.scaleLinear([0, 200], [margin.top, height - margin.bottom])
+        d3js.scaleLinear([-200, 200], [-200, 550])
     )
 }
 
 function scaleLinearX() {
     return (
-        d3js.scaleLinear([0, 200], [margin.left, width - margin.right])
+        d3js.scaleLinear([-200, 200], [-100, 700])
     )
 }
 
@@ -315,7 +315,7 @@ export function defDatesConstrained(bodySelection, data, scrubberForm, minYear, 
         {
             format: value => ("date = " + value.toLocaleDateString()),
             loop: true,
-            alternate: true,
+            alternate: false,
             delay: 30
         })
     chartObject.setAttribute('id', 'networkChart')

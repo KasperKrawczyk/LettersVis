@@ -1,7 +1,10 @@
 // import { html, LitElement } from 'https://unpkg.com/lit-html@0.7.1/lit-html.js'
 
+function format(date) {
+    return date.toISOString().slice(0, 10);
+}
+
 export default function ScrubberSetup(values, formContainer, dataAt, chartObject, {
-    format = value => value,
     initial = 0,
     delay = null,
     autoplay = true,
@@ -16,8 +19,10 @@ export default function ScrubberSetup(values, formContainer, dataAt, chartObject
     let direction = 1;
 
     formContainer.innerHTML =
-        '<form id="form" style="font: 12px var(--sans-serif); font-variant-numeric: tabular-nums; display: flex; height: 33px; align-items: center;">\
+        '<form id="form" style="font-family: sans-serif; font-size: 16px; font-variant-numeric: tabular-nums; display: flex; height: 33px; align-items: center;">\
             <button name=b type=button style="margin-right: 0.4em; width: 5em;"></button>\
+            <button name=up type=button style="margin-right: 0.4em; width: 5em;">+</button>\
+            <button name=down type=button style="margin-right: 0.4em; width: 5em;">-</button>\
             <label style="display: flex; align-items: center;">\
                 <input name=i type=range min=0 max=0 value=0 step=1 style="width: 800px;">\
                 <output name=o style="margin-left: 0.4em;"></output>\
@@ -27,6 +32,20 @@ export default function ScrubberSetup(values, formContainer, dataAt, chartObject
     const form = document.getElementById("form");
     form.i.max = values.length - 1;
 
+    form.up.onclick = function (){
+        if (delay > 10) {
+            delay = delay - 10;
+            clearInterval(interval);
+            interval = setInterval(tick, delay);
+        }
+    }
+    form.down.onclick = function (){
+        if (delay < 120) {
+            delay = delay + 10;
+            clearInterval(interval);
+            interval = setInterval(tick, delay);
+        }
+    }
     function start() {
         form.b.textContent = "Pause";
         if (delay === null) frame = requestAnimationFrame(tick);
@@ -108,7 +127,6 @@ export default function ScrubberSetup(values, formContainer, dataAt, chartObject
 
 
 export function updateScrubber(values, form, dataAt, chartObject, {
-    format = value => value,
     loop = true,
     alternate = false,
     autoplay = false,
@@ -122,6 +140,8 @@ export function updateScrubber(values, form, dataAt, chartObject, {
     let timer = null;
     let interval = null;
     let direction = 1;
+
+
 
     function start() {
         form.b.textContent = "Pause";
@@ -170,7 +190,6 @@ export function updateScrubber(values, form, dataAt, chartObject, {
         chartObject.update(curData);
     };
 
-    // form.i.oninput(); //TODO some fuckery going on in here
     if (autoplay) start();
     else stop();
 }

@@ -13,16 +13,22 @@ export function setOnChangeGetAllOptions(listBox) {
     return listBox.getAllSelectedOptions = function () {
         const set = new Set()
 
-        const len = listBox.options.length;
+        let len = listBox.selectedOptions.length;
         for (let i = 0; i < len; i++) {
-            const option = listBox.options[i];
+            const option = listBox.selectedOptions[i];
 
             if (option.selected) { // || option.textContent === "Isabelle de Charrière" || option.textContent === "Elizabeth Robinson Montagu") {
-                set.add(option.textContent);
+                set.add(option.value);
+            }
+        }
+        if (set.size === 0) {
+            len = listBox.options.length;
+            for (let i = 0; i < len; i++) {
+                const option = listBox.options[i];
+                set.add(option.value);
             }
         }
         return set;
-
     }
 
 }
@@ -91,8 +97,12 @@ export function populateListboxWithNodes(nodes, listBox) {
         .filter(node => !hasNumber(node.label))
         .forEach(node => {
             const option = document.createElement("option");
-            option.textContent = node.label;
+            option.textContent = node.label + formatDates(node.dates);
             option.value = node.label;
             listBox.appendChild(option);
         })
+}
+
+function formatDates(datesString) {
+    return " " + (datesString ? '[' + datesString + ']' : "[?]");
 }
