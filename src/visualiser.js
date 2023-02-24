@@ -1,5 +1,5 @@
-import * as d3js from "https://cdn.skypack.dev/d3@7";
-import ScrubberSetup, {updateScrubber} from "./scrubber.js"
+import * as d3js from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import ScrubberSetup from "./scrubber.js"
 
 
 const margin = {top: 0, right: 150, bottom: 150, left: 100};
