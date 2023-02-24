@@ -4,7 +4,7 @@ import {def, defDatesConstrained} from "./visualiser.js"
 import {fetchData, filterData, populateListboxWithNodes, setOnChangeGetAllOptions} from "./dataManagement.js";
 import {defDateSpanSlider} from "./dateSpan.js";
 
-const data = await fetchData("./files/bipartite_merged_names_update.json")
+const data = await fetchData("./files/bipartite_merged_all.json")
 defDateSpanSlider($("#slider-range"), data)
 
 populateListboxWithNodes(data.nodes, document.getElementById("namesListBox"));
